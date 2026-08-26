@@ -9,3 +9,11 @@ chrono = { version = "0.4.45", features = ["serde"] }
 config = { version = "0.1.0", path = "../config" }
 serde = { version = "1.0.229", features = ["derive"] }
 tokio = { version = "1.53.1", features = ["full"] }
+
+# Tracing and Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+
+# Tower HTTP Middleware
+tower-http = { version = "0.5", features = ["trace", "request-id", "util"] }
+tower = "0.4"
