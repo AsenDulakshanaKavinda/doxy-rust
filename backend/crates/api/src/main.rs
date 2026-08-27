@@ -9,7 +9,8 @@ mod middleware;
 mod routes;
 mod state;
 mod telemetry;
-pub mod db;
+mod db;
+
 
 #[tokio::main]
 async fn main() {
