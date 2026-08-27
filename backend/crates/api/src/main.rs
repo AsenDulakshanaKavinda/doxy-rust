@@ -4,10 +4,12 @@ use axum::{Router, routing::get};
 
 use crate::state::AppState;
 
+
 mod middleware;
 mod routes;
 mod state;
 mod telemetry;
+pub mod db;
 
 #[tokio::main]
 async fn main() {
