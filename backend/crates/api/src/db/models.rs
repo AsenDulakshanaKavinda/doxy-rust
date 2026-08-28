@@ -40,51 +40,51 @@ pub struct User {
     pub id: String,
     pub name: String,
     pub email: String,
-    pub emailVerified: bool,
+    pub email_verified: bool,
     pub image: Option<String>,
-    pub createdAt: DateTime<Utc>,
-    pub updatedAt: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
     pub role: Option<String>,
     pub banned: Option<bool>,
-    pub banReason: Option<String>,
-    pub banExpires: Option<DateTime<Utc>>,
+    pub ban_reason: Option<String>,
+    pub ban_expires: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Insertable, Identifiable, Associations, Serialize, Deserialize)]
 #[diesel(table_name = session)]
-#[diesel(belongs_to(User, foreign_key = userId))]
+#[diesel(belongs_to(User, foreign_key = user_id))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Session {
     pub id: String,
-    pub expiresAt: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
     pub token: String,
-    pub createdAt: DateTime<Utc>,
-    pub updatedAt: DateTime<Utc>,
-    pub ipAddress: Option<String>,
-    pub userAgent: Option<String>,
-    pub userId: String,
-    pub activeOrganizationId: Option<String>,
-    pub impersonatedBy: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub ip_address: Option<String>,
+    pub user_agent: Option<String>,
+    pub user_id: String,
+    pub active_organization_id: Option<String>,
+    pub impersonated_byy: Option<String>,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Insertable, Identifiable, Associations, Serialize, Deserialize)]
 #[diesel(table_name = account)]
-#[diesel(belongs_to(User, foreign_key = userId))]
+#[diesel(belongs_to(User, foreign_key = user_id))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Account {
     pub id: String,
-    pub accountId: String,
-    pub providerId: String,
-    pub userId: String,
-    pub accessToken: Option<String>,
+    pub account_id: String,
+    pub provider_id: String,
+    pub user_id: String,
+    pub access_token: Option<String>,
     pub refreshToken: Option<String>,
-    pub idToken: Option<String>,
-    pub accessTokenExpiresAt: Option<DateTime<Utc>>,
-    pub refreshTokenExpiresAt: Option<DateTime<Utc>>,
+    pub id_token: Option<String>,
+    pub access_token_expires_at: Option<DateTime<Utc>>,
+    pub refresh_token_expires_at: Option<DateTime<Utc>>,
     pub scope: Option<String>,
     pub password: Option<String>,
-    pub createdAt: DateTime<Utc>,
-    pub updatedAt: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Insertable, Serialize, Deserialize)]
@@ -94,19 +94,19 @@ pub struct Verification {
     pub id: String,
     pub identifier: String,
     pub value: String,
-    pub expiresAt: DateTime<Utc>,
-    pub createdAt: DateTime<Utc>,
-    pub updatedAt: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Insertable, Serialize, Deserialize)]
-#[diesel(table_name = rateLimit)]
+#[diesel(table_name = rate_limit)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct RateLimit {
     pub id: String,
     pub key: String,
     pub count: i32,
-    pub lastRequest: i64,
+    pub last_request: i64,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Insertable, Serialize, Deserialize)]
@@ -117,37 +117,37 @@ pub struct Organization {
     pub name: String,
     pub slug: String,
     pub logo: Option<String>,
-    pub createdAt: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
     pub metadata: Option<String>,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Insertable, Identifiable, Associations, Serialize, Deserialize)]
 #[diesel(table_name = member)]
-#[diesel(belongs_to(Organization, foreign_key = organizationId))]
-#[diesel(belongs_to(User, foreign_key = userId))]
+#[diesel(belongs_to(Organization, foreign_key = organization_id))]
+#[diesel(belongs_to(User, foreign_key = user_id))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Member {
     pub id: String,
-    pub organizationId: String,
-    pub userId: String,
+    pub organization_id: String,
+    pub user_id: String,
     pub role: String,
-    pub createdAt: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Insertable, Identifiable, Associations, Serialize, Deserialize)]
 #[diesel(table_name = invitation)]
-#[diesel(belongs_to(Organization, foreign_key = organizationId))]
-#[diesel(belongs_to(User, foreign_key = inviterId))]
+#[diesel(belongs_to(Organization, foreign_key = organization_id))]
+#[diesel(belongs_to(User, foreign_key = inviter_id))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Invitation {
     pub id: String,
-    pub organizationId: String,
+    pub organization_id: String,
     pub email: String,
     pub role: Option<String>,
     pub status: String,
-    pub expiresAt: DateTime<Utc>,
-    pub createdAt: DateTime<Utc>,
-    pub inviterId: String,
+    pub expires_at: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
+    pub inviter_id: String,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Insertable, Serialize, Deserialize)]
@@ -155,36 +155,36 @@ pub struct Invitation {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Avatar {
     pub id: String,
-    pub userId: String,
-    pub contentType: String,
+    pub user_id: String,
+    pub content_type: String,
     pub data: Vec<u8>,
-    pub updatedAt: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Insertable, Serialize, Deserialize)]
-#[diesel(table_name = adminLog)]
+#[diesel(table_name = admin_log)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct AdminLog {
     pub id: String,
-    pub actorId: Option<String>,
-    pub actorName: Option<String>,
+    pub actor_id: Option<String>,
+    pub actor_name: Option<String>,
     pub action: String,
     pub description: String,
-    pub targetId: Option<String>,
-    pub createdAt: DateTime<Utc>,
+    pub target_id: Option<String>,
+    pub created_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Insertable, AsChangeset, Serialize, Deserialize)]
-#[diesel(table_name = appSetting)]
+#[diesel(table_name = app_setting)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct AppSetting {
     pub id: String,
-    pub allowSignUps: bool,
-    pub enforceTwoFactor: bool,
-    pub maintenanceMode: bool,
-    pub chatRetentionMonths: Option<i32>,
-    pub updatedByUserId: Option<String>,
-    pub updatedAt: DateTime<Utc>,
+    pub allow_sign_ups: bool,
+    pub enforce_two_factor: bool,
+    pub maintenance_mode: bool,
+    pub chat_retention_months: Option<i32>,
+    pub updated_by_user_id: Option<String>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Insertable, AsChangeset, Serialize, Deserialize)]
@@ -192,23 +192,23 @@ pub struct AppSetting {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Subscription {
     pub id: String,
-    pub organizationId: String,
-    pub stripeCustomerId: Option<String>,
-    pub stripeSubscriptionId: Option<String>,
+    pub organization_id: String,
+    pub stripe_customer_id: Option<String>,
+    pub stripe_subscription_id: Option<String>,
     pub status: Option<String>,
-    pub planId: String,
-    pub priceId: Option<String>,
+    pub plan_id: String,
+    pub price_id: Option<String>,
     pub interval: Option<String>,
-    pub currentPeriodEnd: Option<DateTime<Utc>>,
-    pub cancelAtPeriodEnd: bool,
-    pub cardBrand: Option<String>,
-    pub cardLast4: Option<String>,
-    pub cardExpMonth: Option<i32>,
-    pub cardExpYear: Option<i32>,
+    pub current_period_end: Option<DateTime<Utc>>,
+    pub cancel_at_period_end: bool,
+    pub card_brand: Option<String>,
+    pub card_last4: Option<String>,
+    pub card_exp_month: Option<i32>,
+    pub card_exp_year: Option<i32>,
     pub source: String,
-    pub grantedByUserId: Option<String>,
-    pub createdAt: DateTime<Utc>,
-    pub updatedAt: DateTime<Utc>,
+    pub granted_by_user_id: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Insertable, Serialize, Deserialize)]
@@ -216,17 +216,17 @@ pub struct Subscription {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Document {
     pub id: String,
-    pub organizationId: String,
-    pub userId: String,
+    pub organization_id: String,
+    pub user_id: String,
     pub name: String,
-    pub contentType: String,
-    pub sizeBytes: i32,
-    pub pageCount: Option<i32>,
+    pub content_type: String,
+    pub size_bytes: i32,
+    pub page_count: Option<i32>,
     pub data: Vec<u8>,
     pub text: Option<String>,
     pub status: DocumentStatus,
-    pub failureReason: Option<String>,
-    pub createdAt: DateTime<Utc>,
+    pub failure_reason: Option<String>,
+    pub created_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Insertable, Serialize, Deserialize)]
@@ -234,47 +234,47 @@ pub struct Document {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Chat {
     pub id: String,
-    pub organizationId: String,
-    pub userId: String,
+    pub organization_id: String,
+    pub user_id: String,
     pub title: String,
-    pub createdAt: DateTime<Utc>,
-    pub updatedAt: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Insertable, Identifiable, Associations, Serialize, Deserialize)]
-#[diesel(table_name = chatDocument)]
-#[diesel(primary_key(chatId, documentId))]
-#[diesel(belongs_to(Chat, foreign_key = chatId))]
-#[diesel(belongs_to(Document, foreign_key = documentId))]
+#[diesel(table_name = chat_document)]
+#[diesel(primary_key(chat_id, document_id))]
+#[diesel(belongs_to(Chat, foreign_key = chat_id))]
+#[diesel(belongs_to(Document, foreign_key = document_id))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct ChatDocument {
-    pub chatId: String,
-    pub documentId: String,
+    pub chat_id: String,
+    pub document_id: String,
     pub position: i32,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Insertable, Identifiable, Associations, Serialize, Deserialize)]
 #[diesel(table_name = message)]
-#[diesel(belongs_to(Chat, foreign_key = chatId))]
+#[diesel(belongs_to(Chat, foreign_key = chat_id))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Message {
     pub id: String,
-    pub chatId: String,
+    pub chat_id: String,
     pub role: MessageRole,
     pub content: String,
     pub sources: Option<Json>,
     pub hidden: bool,
     pub feedback: Option<MessageFeedback>,
-    pub createdAt: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Insertable, Serialize, Deserialize)]
-#[diesel(table_name = questionEvent)]
+#[diesel(table_name = question_event)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct QuestionEvent {
     pub id: String,
-    pub organizationId: String,
-    pub userId: String,
-    pub chatId: Option<String>,
-    pub createdAt: DateTime<Utc>,
+    pub organization_id: String,
+    pub user_id: String,
+    pub chat_id: Option<String>,
+    pub created_at: DateTime<Utc>,
 }

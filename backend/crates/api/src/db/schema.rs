@@ -21,14 +21,14 @@ diesel::table! {
         id -> Text,
         name -> Text,
         email -> Text,
-        emailVerified -> Bool,
+        email_verified -> Bool,
         image -> Nullable<Text>,
-        createdAt -> Timestamptz,
-        updatedAt -> Timestamptz,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
         role -> Nullable<Text>,
         banned -> Nullable<Bool>,
-        banReason -> Nullable<Text>,
-        banExpires -> Nullable<Timestamptz>,
+        ban_reason -> Nullable<Text>,
+        ban_expires -> Nullable<Timestamptz>,
     }
 }
 
@@ -37,15 +37,15 @@ diesel::table! {
 
     session (id) {
         id -> Text,
-        expiresAt -> Timestamptz,
+        expires_at -> Timestamptz,
         token -> Text,
-        createdAt -> Timestamptz,
-        updatedAt -> Timestamptz,
-        ipAddress -> Nullable<Text>,
-        userAgent -> Nullable<Text>,
-        userId -> Text,
-        activeOrganizationId -> Nullable<Text>,
-        impersonatedBy -> Nullable<Text>,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+        ip_address -> Nullable<Text>,
+        user_agent -> Nullable<Text>,
+        user_id -> Text,
+        active_organization_id -> Nullable<Text>,
+        impersonated_byy -> Nullable<Text>,
     }
 }
 
@@ -54,18 +54,18 @@ diesel::table! {
 
     account (id) {
         id -> Text,
-        accountId -> Text,
-        providerId -> Text,
-        userId -> Text,
-        accessToken -> Nullable<Text>,
+        account_id -> Text,
+        provider_id -> Text,
+        user_id -> Text,
+        access_token -> Nullable<Text>,
         refreshToken -> Nullable<Text>,
-        idToken -> Nullable<Text>,
-        accessTokenExpiresAt -> Nullable<Timestamptz>,
-        refreshTokenExpiresAt -> Nullable<Timestamptz>,
+        id_token -> Nullable<Text>,
+        access_token_expires_at -> Nullable<Timestamptz>,
+        refresh_token_expires_at -> Nullable<Timestamptz>,
         scope -> Nullable<Text>,
         password -> Nullable<Text>,
-        createdAt -> Timestamptz,
-        updatedAt -> Timestamptz,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
     }
 }
 
@@ -76,20 +76,20 @@ diesel::table! {
         id -> Text,
         identifier -> Text,
         value -> Text,
-        expiresAt -> Timestamptz,
-        createdAt -> Timestamptz,
-        updatedAt -> Timestamptz,
+        expires_at -> Timestamptz,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
     }
 }
 
 diesel::table! {
     use diesel::sql_types::*;
 
-    rateLimit (id) {
+    rate_limit (id) {
         id -> Text,
         key -> Text,
         count -> Int4,
-        lastRequest -> BigInt,
+        last_request -> BigInt,
     }
 }
 
@@ -101,7 +101,7 @@ diesel::table! {
         name -> Text,
         slug -> Text,
         logo -> Nullable<Text>,
-        createdAt -> Timestamptz,
+        created_at -> Timestamptz,
         metadata -> Nullable<Text>,
     }
 }
@@ -111,10 +111,10 @@ diesel::table! {
 
     member (id) {
         id -> Text,
-        organizationId -> Text,
-        userId -> Text,
+        organization_id -> Text,
+        user_id -> Text,
         role -> Text,
-        createdAt -> Timestamptz,
+        created_at -> Timestamptz,
     }
 }
 
@@ -123,13 +123,13 @@ diesel::table! {
 
     invitation (id) {
         id -> Text,
-        organizationId -> Text,
+        organization_id -> Text,
         email -> Text,
         role -> Nullable<Text>,
         status -> Text,
-        expiresAt -> Timestamptz,
-        createdAt -> Timestamptz,
-        inviterId -> Text,
+        expires_at -> Timestamptz,
+        created_at -> Timestamptz,
+        inviter_id -> Text,
     }
 }
 
@@ -138,38 +138,38 @@ diesel::table! {
 
     avatar (id) {
         id -> Text,
-        userId -> Text,
-        contentType -> Text,
+        user_id -> Text,
+        content_type -> Text,
         data -> Bytea,
-        updatedAt -> Timestamptz,
+        updated_at -> Timestamptz,
     }
 }
 
 diesel::table! {
     use diesel::sql_types::*;
 
-    adminLog (id) {
+    admin_log (id) {
         id -> Text,
-        actorId -> Nullable<Text>,
-        actorName -> Nullable<Text>,
+        actor_id -> Nullable<Text>,
+        actor_name -> Nullable<Text>,
         action -> Text,
         description -> Text,
-        targetId -> Nullable<Text>,
-        createdAt -> Timestamptz,
+        target_id -> Nullable<Text>,
+        created_at -> Timestamptz,
     }
 }
 
 diesel::table! {
     use diesel::sql_types::*;
 
-    appSetting (id) {
+    app_setting (id) {
         id -> Text,
-        allowSignUps -> Bool,
-        enforceTwoFactor -> Bool,
-        maintenanceMode -> Bool,
-        chatRetentionMonths -> Nullable<Int4>,
-        updatedByUserId -> Nullable<Text>,
-        updatedAt -> Timestamptz,
+        allow_sign_ups -> Bool,
+        enforce_two_factor -> Bool,
+        maintenance_mode -> Bool,
+        chat_retention_months -> Nullable<Int4>,
+        updated_by_user_id -> Nullable<Text>,
+        updated_at -> Timestamptz,
     }
 }
 
@@ -178,23 +178,23 @@ diesel::table! {
 
     subscription (id) {
         id -> Text,
-        organizationId -> Text,
-        stripeCustomerId -> Nullable<Text>,
-        stripeSubscriptionId -> Nullable<Text>,
+        organization_id -> Text,
+        stripe_customer_id -> Nullable<Text>,
+        stripe_subscription_id -> Nullable<Text>,
         status -> Nullable<Text>,
-        planId -> Text,
-        priceId -> Nullable<Text>,
+        plan_id -> Text,
+        price_id -> Nullable<Text>,
         interval -> Nullable<Text>,
-        currentPeriodEnd -> Nullable<Timestamptz>,
-        cancelAtPeriodEnd -> Bool,
-        cardBrand -> Nullable<Text>,
-        cardLast4 -> Nullable<Text>,
-        cardExpMonth -> Nullable<Int4>,
-        cardExpYear -> Nullable<Int4>,
+        current_period_end -> Nullable<Timestamptz>,
+        cancel_at_period_end -> Bool,
+        card_brand -> Nullable<Text>,
+        card_last4 -> Nullable<Text>,
+        card_exp_month -> Nullable<Int4>,
+        card_exp_year -> Nullable<Int4>,
         source -> Text,
-        grantedByUserId -> Nullable<Text>,
-        createdAt -> Timestamptz,
-        updatedAt -> Timestamptz,
+        granted_by_user_id -> Nullable<Text>,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
     }
 }
 
@@ -204,17 +204,17 @@ diesel::table! {
 
     document (id) {
         id -> Text,
-        organizationId -> Text,
-        userId -> Text,
+        organization_id -> Text,
+        user_id -> Text,
         name -> Text,
-        contentType -> Text,
-        sizeBytes -> Int4,
-        pageCount -> Nullable<Int4>,
+        content_type -> Text,
+        size_bytes -> Int4,
+        page_count -> Nullable<Int4>,
         data -> Bytea,
         text -> Nullable<Text>,
         status -> DocumentStatus,
-        failureReason -> Nullable<Text>,
-        createdAt -> Timestamptz,
+        failure_reason -> Nullable<Text>,
+        created_at -> Timestamptz,
     }
 }
 
@@ -223,20 +223,20 @@ diesel::table! {
 
     chat (id) {
         id -> Text,
-        organizationId -> Text,
-        userId -> Text,
+        organization_id -> Text,
+        user_id -> Text,
         title -> Text,
-        createdAt -> Timestamptz,
-        updatedAt -> Timestamptz,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
     }
 }
 
 diesel::table! {
     use diesel::sql_types::*;
 
-    chatDocument (chatId, documentId) {
-        chatId -> Text,
-        documentId -> Text,
+    chat_document (chat_id, document_id) {
+        chat_id -> Text,
+        document_id -> Text,
         position -> Int4,
     }
 }
@@ -247,54 +247,54 @@ diesel::table! {
 
     message (id) {
         id -> Text,
-        chatId -> Text,
+        chat_id -> Text,
         role -> MessageRole,
         content -> Text,
         sources -> Nullable<Jsonb>,
         hidden -> Bool,
         feedback -> Nullable<MessageFeedback>,
-        createdAt -> Timestamptz,
+        created_at -> Timestamptz,
     }
 }
 
 diesel::table! {
     use diesel::sql_types::*;
 
-    questionEvent (id) {
+    question_event (id) {
         id -> Text,
-        organizationId -> Text,
-        userId -> Text,
-        chatId -> Nullable<Text>,
-        createdAt -> Timestamptz,
+        organization_id -> Text,
+        user_id -> Text,
+        chat_id -> Nullable<Text>,
+        created_at -> Timestamptz,
     }
 }
 
-diesel::joinable!(session -> user (userId));
-diesel::joinable!(account -> user (userId));
-diesel::joinable!(member -> organization (organizationId));
-diesel::joinable!(member -> user (userId));
-diesel::joinable!(invitation -> organization (organizationId));
-diesel::joinable!(invitation -> user (inviterId));
-diesel::joinable!(chatDocument -> chat (chatId));
-diesel::joinable!(chatDocument -> document (documentId));
-diesel::joinable!(message -> chat (chatId));
+diesel::joinable!(session -> user (user_id));
+diesel::joinable!(account -> user (user_id));
+diesel::joinable!(member -> organization (organization_id));
+diesel::joinable!(member -> user (user_id));
+diesel::joinable!(invitation -> organization (organization_id));
+diesel::joinable!(invitation -> user (inviter_id));
+diesel::joinable!(chat_document -> chat (chat_id));
+diesel::joinable!(chat_document -> document (document_id));
+diesel::joinable!(message -> chat (chat_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     user,
     session,
     account,
     verification,
-    rateLimit,
+    rate_limit,
     organization,
     member,
     invitation,
     avatar,
-    adminLog,
-    appSetting,
+    admin_log,
+    app_setting,
     subscription,
     document,
     chat,
-    chatDocument,
+    chat_document,
     message,
-    questionEvent,
+    question_event,
 );
