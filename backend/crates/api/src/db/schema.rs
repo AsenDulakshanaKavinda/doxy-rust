@@ -58,7 +58,7 @@ diesel::table! {
         provider_id -> Text,
         user_id -> Text,
         access_token -> Nullable<Text>,
-        refreshToken -> Nullable<Text>,
+        refresh_token -> Nullable<Text>,
         id_token -> Nullable<Text>,
         access_token_expires_at -> Nullable<Timestamptz>,
         refresh_token_expires_at -> Nullable<Timestamptz>,

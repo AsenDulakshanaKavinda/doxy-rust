@@ -77,7 +77,7 @@ pub struct Account {
     pub provider_id: String,
     pub user_id: String,
     pub access_token: Option<String>,
-    pub refreshToken: Option<String>,
+    pub refresh_token: Option<String>,
     pub id_token: Option<String>,
     pub access_token_expires_at: Option<DateTime<Utc>>,
     pub refresh_token_expires_at: Option<DateTime<Utc>>,
