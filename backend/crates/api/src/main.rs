@@ -2,7 +2,7 @@ use std::{net::SocketAddr, sync::Arc};
 
 use axum::{Router, routing::get};
 
-use crate::state::AppState;
+use crate::{db::pool::create_pool, state::AppState};
 
 
 mod middleware;
@@ -14,7 +14,9 @@ mod db;
 
 #[tokio::main]
 async fn main() {
-    telemetry::init_tracing();
+
+    telemetry::init_tracing(); // start tracing
+    let pool = create_pool();
 
     let state = Arc::new(AppState::new());
 
