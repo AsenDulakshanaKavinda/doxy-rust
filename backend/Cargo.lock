@@ -30,6 +30,7 @@ dependencies = [
  "diesel",
  "diesel-derive-enum",
  "dotenvy",
+ "http-body-util",
  "serde",
  "serde_json",
  "tokio",

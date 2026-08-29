@@ -9,7 +9,7 @@ mod middleware;
 mod routes;
 mod state;
 mod telemetry;
-mod db;
+pub mod db;
 
 
 #[tokio::main]

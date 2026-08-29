@@ -1,0 +1,74 @@
+name: Backend Tests
+
+on:
+  push:
+    branches: [main, dev-main, dev-02]
+    paths:
+      - "backend/**"
+      - ".github/workflows/test.yml"
+  pull_request:
+    branches: [main, dev-main, dev-02]
+    paths:
+      - "backend/**"
+      - ".github/workflows/test.yml"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # Postgres available to every step in this job at localhost:5432
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: doxy_test
+        ports:
+          - 5432:5432
+        # Wait for Postgres to actually be ready before steps run against it
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # Used by both `diesel migration run` and the test suite's test_pool()
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/doxy_test
+      # Some diesel setups also read DATABASE_URL for the CLI — set both to
+      # be safe. Change if your Diesel.toml points elsewhere.
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/doxy_test
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry and build artifacts
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: backend
+
+      - name: Install libpq (required to build diesel's postgres feature)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev
+
+      - name: Install diesel_cli
+        run: cargo install diesel_cli --no-default-features --features postgres --locked
+
+      - name: Run migrations against the test database
+        run: diesel migration run --database-url "$TEST_DATABASE_URL"
+
+      - name: Run tests
+        run: cargo test --workspace --all-features
