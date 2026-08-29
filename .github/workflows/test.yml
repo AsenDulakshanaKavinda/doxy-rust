@@ -43,6 +43,10 @@ jobs:
       # be safe. Change if your Diesel.toml points elsewhere.
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/doxy_test
 
+      APP_PORT: 8080
+      LOG_LEVEL: nfo
+      RUST_LOG: info,api=debug,tower_http=debug
+
     defaults:
       run:
         working-directory: backend
@@ -68,6 +72,7 @@ jobs:
         run: cargo install diesel_cli --no-default-features --features postgres --locked
 
       - name: Run migrations against the test database
+        working-directory: backend/crates/api
         run: diesel migration run --database-url "$TEST_DATABASE_URL"
 
       - name: Run tests
