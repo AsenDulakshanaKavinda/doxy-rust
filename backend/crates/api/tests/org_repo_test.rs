@@ -2,7 +2,7 @@
 // SETUP — read this before running the tests below
 // ============================================================================
 //
-// ### - Unit test for the User Repo
+// ### - Unit test for the Organization Repo
 //
 // These tests call your axum handlers directly (no HTTP server involved) but
 // they go through a real Postgres connection via Diesel, so you need an
@@ -52,9 +52,9 @@
 #[cfg(test)]
 mod tests {
     use api::db::pool::DbPool;
-    use api::db::repositories::user_repo::{
-        CreateUserRequest, UpdateUserRequest, create_user, delete_user_by_id, get_user_by_id,
-        update_user_by_id,
+    use api::db::repositories::org_repo::{
+        CreateOrganizationRequest, UpdateOrganizationRequest, create_organization,
+        delete_organization_by_id, get_organization_by_id, update_organization_by_id,
     };
     use axum::Json;
     use axum::extract::{Path, State};
@@ -64,16 +64,14 @@ mod tests {
     use diesel::{Connection, PgConnection};
     use http_body_util::BodyExt;
     use serde_json::Value;
-    // use dotenvy::dotenv;
 
     /// Builds a single-connection pool with an open, never-committed
     /// transaction. See the setup notes above for why max_size(1) matters.
     fn test_pool() -> DbPool {
         dotenvy::dotenv().ok();
-        
-        let db_url = std::env::var("TEST_DATABASE_URL").expect("TEST_DATABASE_URL must be set to run these tests");
-        
 
+        let db_url = std::env::var("TEST_DATABASE_URL")
+            .expect("TEST_DATABASE_URL must be set to run these tests");
 
         let manager = ConnectionManager::<PgConnection>::new(db_url);
         let pool = Pool::builder()
@@ -125,115 +123,117 @@ mod tests {
         result.err().unwrap_or_else(|| panic!("{msg}"))
     }
 
-    fn valid_create_request(email: &str) -> CreateUserRequest {
-        CreateUserRequest {
-            name: "Peter Parker".to_string(),
-            email: email.to_string(),
+    fn valid_create_request(name: &str) -> CreateOrganizationRequest {
+        CreateOrganizationRequest {
+            name: name.to_string(),
+            slug: "test-slug".to_string(),
+            logo: None,
+            metadata: None,
         }
     }
 
-    // ---- create_user ----------------------------------------------------
-
     #[tokio::test]
-    async fn create_user_succeeds_with_valid_payload() {
+    async fn create_organization_succeeds_with_valid_payload() {
         let pool = test_pool();
 
-        let result = create_user(State(pool), Json(valid_create_request("peter@example.com"))).await;
-
-        let response = result.expect("expected Ok from create_user");
+        let response =
+            create_organization(State(pool), Json(valid_create_request("Peter parker"))).await;
         let (status, body) = read_response(response).await;
 
         assert_eq!(status, StatusCode::CREATED);
-        assert_eq!(body["name"], "Peter Parker");
-        assert_eq!(body["email"], "peter@example.com");
+        assert_eq!(body["name"], "Peter parker");
+        assert_eq!(body["slug"], "test-slug");
         assert!(body["id"].is_string(), "expected a generated id");
     }
 
     #[tokio::test]
-    async fn create_user_rejects_empty_name() {
+    async fn create_organization_rejects_empty_name() {
         let pool = test_pool();
 
-        let payload = CreateUserRequest {
+        let payload = CreateOrganizationRequest {
             name: "   ".to_string(),
-            email: "peter@example.com".to_string(),
+            slug: "test-slug".to_string(),
+            logo: None,
+            metadata: None,
         };
 
         let err = expect_err(
-            create_user(State(pool), Json(payload)).await,
+            create_organization(State(pool), Json(payload)).await,
             "expected Err for empty name",
         );
 
-        assert_eq!(err.0, StatusCode::BAD_REQUEST);
+        assert_eq!(err.0, StatusCode::BAD_REQUEST)
     }
 
     #[tokio::test]
-    async fn create_user_rejects_invalid_email() {
+    async fn create_organization_rejects_invalid_slug() {
         let pool = test_pool();
 
-        let payload = CreateUserRequest {
-            name: "Peter Parker".to_string(),
-            email: "not-an-email".to_string(),
+        let payload = CreateOrganizationRequest {
+            name: "test_org".to_string(),
+            slug: "Invalid Slug!".to_string(),
+            logo: None,
+            metadata: None,
         };
 
         let err = expect_err(
-            create_user(State(pool), Json(payload)).await,
-            "expected Err for invalid email",
+            create_organization(State(pool), Json(payload)).await,
+            "expected Err for invalid slug",
         );
 
-        assert_eq!(err.0, StatusCode::BAD_REQUEST);
+        assert_eq!(err.0, StatusCode::BAD_REQUEST)
     }
 
     #[tokio::test]
-    async fn create_user_rejects_duplicate_email() {
+    async fn create_organization_rejects_empty_slug() {
         let pool = test_pool();
 
-        create_user(
-            State(pool.clone()),
-            Json(valid_create_request("dupe@example.com")),
-        )
-        .await
-        .expect("first create_user should succeed");
+        let payload = CreateOrganizationRequest {
+            name: "test_orgs".to_string(),
+            slug: " ".to_string(),
+            logo: None,
+            metadata: None,
+        };
 
         let err = expect_err(
-            create_user(State(pool), Json(valid_create_request("dupe@example.com"))).await,
-            "expected Err for duplicate email",
+            create_organization(State(pool), Json(payload)).await,
+            "expected Err for empty slug",
         );
 
-        assert_eq!(err.0, StatusCode::CONFLICT);
+        assert_eq!(err.0, StatusCode::BAD_REQUEST)
     }
 
-    // ---- get_user_by_id ---------------------------------------------------
-
     #[tokio::test]
-    async fn get_user_by_id_returns_created_user() {
+    async fn get_organization_by_id_returns_created_organization() {
         let pool = test_pool();
 
-        let created = create_user(
+        let created = create_organization(
             State(pool.clone()),
-            Json(valid_create_request("lookup@example.com")),
+            Json(valid_create_request("Peter parker")),
         )
         .await
-        .expect("create_user should succeed");
+        .expect("create_organization should succeed");
+
         let (_, created_body) = read_response(created).await;
         let id = created_body["id"].as_str().unwrap().to_string();
 
-        let fetched = get_user_by_id(State(pool), Path(id.clone()))
+        let fetched = get_organization_by_id(State(pool), Path(id.clone()))
             .await
             .expect("get_user_by_id should succeed");
         let (status, body) = read_response(fetched).await;
 
         assert_eq!(status, StatusCode::OK);
         assert_eq!(body["id"], id);
-        assert_eq!(body["email"], "lookup@example.com");
+        assert_eq!(body["name"], "Peter parker");
     }
 
     #[tokio::test]
-    async fn get_user_by_id_returns_404_when_missing() {
+    async fn get_organization_by_id_returns_404_when_missing() {
         let pool = test_pool();
         let missing_id = uuid::Uuid::new_v4().to_string();
 
         let err = expect_err(
-            get_user_by_id(State(pool), Path(missing_id)).await,
+            get_organization_by_id(State(pool), Path(missing_id)).await,
             "expected Err for missing user",
         );
 
@@ -241,116 +241,115 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn get_user_by_id_rejects_invalid_uuid() {
+    async fn update_organization_by_id_applies_changes() {
         let pool = test_pool();
 
-        let err = expect_err(
-            get_user_by_id(State(pool), Path("not-a-uuid".to_string())).await,
-            "expected Err for invalid uuid",
-        );
-
-        assert_eq!(err.0, StatusCode::BAD_REQUEST);
-    }
-
-    // ---- update_user_by_id ------------------------------------------------
-
-    #[tokio::test]
-    async fn update_user_by_id_applies_changes() {
-        let pool = test_pool();
-
-        let created = create_user(
+        let created = create_organization(
             State(pool.clone()),
-            Json(valid_create_request("before@example.com")),
+            Json(valid_create_request("org-name-before")),
         )
         .await
-        .expect("create_user should succeed");
+        .expect("create_organization should be succeed");
+
         let (_, created_body) = read_response(created).await;
         let id = created_body["id"].as_str().unwrap().to_string();
 
-        let update_payload = UpdateUserRequest {
-            name: Some("Grace Hopper".to_string()),
+        let update_payload = UpdateOrganizationRequest {
+            name: Some("org-name-after".to_string()),
+            slug: None,
+            logo: None,
+            metadata: None,
         };
 
-        let updated = update_user_by_id(State(pool), Path(id.clone()), Json(update_payload))
-            .await
-            .expect("update_user_by_id should succeed");
+        let updated =
+            update_organization_by_id(State(pool), Path(id.clone()), Json(update_payload))
+                .await
+                .expect("update_organization_by_id should succeed");
         let (status, body) = read_response(updated).await;
 
         assert_eq!(status, StatusCode::OK);
-        assert_eq!(body["name"], "Grace Hopper");
-        // email is untouched by this update — still the value set at creation
-        assert_eq!(body["email"], "before@example.com");
+        assert_eq!(body["name"], "org-name-after");
     }
 
     #[tokio::test]
-    async fn update_user_by_id_rejects_empty_body() {
+    async fn update_organization_by_id_rejects_empty_name() {
         let pool = test_pool();
 
-        let created = create_user(
+        let created = create_organization(
             State(pool.clone()),
-            Json(valid_create_request("empty-patch@example.com")),
+            Json(valid_create_request("org-name-before")),
         )
         .await
-        .expect("create_user should succeed");
+        .expect("create_organization should be succeed");
+
         let (_, created_body) = read_response(created).await;
         let id = created_body["id"].as_str().unwrap().to_string();
 
+        let update_payload = UpdateOrganizationRequest {
+            name: Some("   ".to_string()),
+            slug: None,
+            logo: None,
+            metadata: None,
+        };
+
         let err = expect_err(
-            update_user_by_id(
-                State(pool),
-                Path(id),
-                Json(UpdateUserRequest { name: None }),
-            )
-            .await,
-            "expected Err for empty patch body",
+            update_organization_by_id(State(pool), Path(id), Json(update_payload)).await,
+            "expected Err for invalid slug body",
         );
 
         assert_eq!(err.0, StatusCode::BAD_REQUEST);
     }
 
     #[tokio::test]
-    async fn update_user_by_id_returns_404_when_missing() {
-        let pool = test_pool();
-        let missing_id = uuid::Uuid::new_v4().to_string();
-
-        let err = expect_err(
-            update_user_by_id(
-                State(pool),
-                Path(missing_id),
-                Json(UpdateUserRequest {
-                    name: Some("Ghost".to_string()),
-                }),
-            )
-            .await,
-            "expected Err for missing user",
-        );
-
-        assert_eq!(err.0, StatusCode::NOT_FOUND);
-    }
-
-    // ---- delete_user_by_id ------------------------------------------------
-
-    #[tokio::test]
-    async fn delete_user_by_id_removes_user() {
+    async fn update_organization_by_id_rejects_invalid_slug() {
         let pool = test_pool();
 
-        let created = create_user(
+        let created = create_organization(
             State(pool.clone()),
-            Json(valid_create_request("to-delete@example.com")),
+            Json(valid_create_request("org-name-before")),
         )
         .await
-        .expect("create_user should succeed");
+        .expect("create_organization should be succeed");
+
         let (_, created_body) = read_response(created).await;
         let id = created_body["id"].as_str().unwrap().to_string();
 
-        let deleted = delete_user_by_id(State(pool.clone()), Path(id.clone()))
+        let update_payload = UpdateOrganizationRequest {
+            name: None,
+            slug: Some("Invalid Slug!".to_string()),
+            logo: None,
+            metadata: None,
+        };
+
+        let err = expect_err(
+            update_organization_by_id(State(pool), Path(id), Json(update_payload)).await,
+            "expected Err for invalid slug body",
+        );
+
+        assert_eq!(err.0, StatusCode::BAD_REQUEST);
+    }
+
+    #[tokio::test]
+    async fn delete_organization_by_id_removes_organization() {
+        let pool = test_pool();
+
+        let created = create_organization(
+            State(pool.clone()),
+            Json(valid_create_request("org-name-before")),
+        )
+        .await
+        .expect("create_organization should be succeed");
+        let (_, created_body) = read_response(created).await;
+        let id = created_body["id"].as_str().unwrap().to_string();
+
+        let deleted = delete_organization_by_id(State(pool.clone()), Path(id.clone()))
             .await
             .expect("delete_user_by_id should succeed");
         let (status, _) = read_response(deleted).await;
         assert_eq!(status, StatusCode::NO_CONTENT);
 
         let err = expect_err(
-            get_user_by_id(State(pool), Path(id)).await,
+            get_organization_by_id(State(pool), Path(id)).await,
             "expected Err after deletion",
         );
         assert_eq!(err.0, StatusCode::NOT_FOUND);
@@ -362,7 +361,7 @@ mod tests {
         let missing_id = uuid::Uuid::new_v4().to_string();
 
         let err = expect_err(
-            delete_user_by_id(State(pool), Path(missing_id)).await,
+            delete_organization_by_id(State(pool), Path(missing_id)).await,
             "expected Err for missing user",
         );
 

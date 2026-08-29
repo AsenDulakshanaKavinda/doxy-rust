@@ -16,7 +16,7 @@ pub mod db;
 async fn main() {
 
     telemetry::init_tracing(); // start tracing
-    let pool = create_pool();
+    let _pool = create_pool();
 
     let state = Arc::new(AppState::new());
 
