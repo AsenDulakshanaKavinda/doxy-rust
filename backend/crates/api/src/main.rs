@@ -10,7 +10,7 @@ mod routes;
 mod state;
 mod telemetry;
 pub mod db;
-
+pub mod auth;
 
 #[tokio::main]
 async fn main() {
